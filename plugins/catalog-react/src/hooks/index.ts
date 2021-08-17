@@ -15,7 +15,6 @@
  */
 export { EntityContext, useEntity, useEntityFromUrl } from './useEntity';
 export { useEntityCompoundName } from './useEntityCompoundName';
-export { useEntityPermission } from './useEntityPermission';
 export {
   EntityListContext,
   EntityListProvider,
