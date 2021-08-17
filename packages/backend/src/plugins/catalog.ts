@@ -40,6 +40,5 @@ export default async function createPlugin(
     locationService,
     logger: env.logger,
     config: env.config,
-    discovery: env.discovery,
   });
 }
