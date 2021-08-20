@@ -37,3 +37,4 @@ export {
   RepoUrlPicker,
   TextValuePicker,
 } from './components/fields';
+export { ScaffolderPermission } from './permissions';

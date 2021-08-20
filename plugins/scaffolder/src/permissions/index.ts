@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Backstage Authors
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-export * from './entity';
-export { EntityPolicies } from './EntityPolicies';
-export * from './kinds';
-export * from './location';
-export type { EntityName, EntityRef, JSONSchema } from './types';
-export * from './validation';
-export * from './permissions';
+import { createPermissions } from '@backstage/plugin-permission';
+
+export const ScaffolderPermission = createPermissions({
+  ROUTES: {
+    id: 'backstage.scaffolder.routes',
+    attributes: {
+      ROUTE_VISIBILITY: true,
+    },
+  },
+});
