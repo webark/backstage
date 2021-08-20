@@ -14,6 +14,4 @@
  * limitations under the License.
  */
 
-export * from './client';
-export * from './permissions';
-export * from './api';
+export { PermissionClient } from './PermissionClient';
