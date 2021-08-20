@@ -28,6 +28,8 @@ import {
   DEFAULT_SCAFFOLDER_FIELD_EXTENSIONS,
 } from '../extensions';
 import { useElementFilter } from '@backstage/core-plugin-api';
+import { PermissionedRoute } from '@backstage/plugin-permission';
+import { ScaffolderPermission } from '../permissions';
 
 export const Router = () => {
   const outlet = useOutlet();
@@ -54,7 +56,11 @@ export const Router = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<ScaffolderPage />} />
+      <PermissionedRoute
+        path="/"
+        permission={ScaffolderPermission.ROUTES}
+        element={<ScaffolderPage />}
+      />
       <Route
         path="/templates/:templateName"
         element={<TemplatePage customFieldExtensions={fieldExtensions} />}

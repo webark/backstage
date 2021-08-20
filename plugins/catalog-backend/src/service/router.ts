@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-import { errorHandler } from '@backstage/backend-common';
+import { errorHandler, SingleHostDiscovery } from '@backstage/backend-common';
 import type { Entity } from '@backstage/catalog-model';
 import {
   analyzeLocationSchema,
   locationSpecSchema,
+  CatalogPermission,
+  getEntityName,
 } from '@backstage/catalog-model';
 import { Config } from '@backstage/config';
 import { NotFoundError } from '@backstage/errors';
@@ -40,6 +42,9 @@ import {
   requireRequestBody,
   validateRequestBody,
 } from './util';
+import { AuthorizeResult } from '@backstage/plugin-permission';
+import { PermissionClient } from '@backstage/plugin-permission-module-catalog';
+import { IdentityClient } from '@backstage/plugin-auth-backend';
 
 export interface RouterOptions {
   entitiesCatalog?: EntitiesCatalog;
@@ -66,6 +71,11 @@ export async function createRouter(
 
   const router = Router();
   router.use(express.json());
+
+  const discoveryApi = SingleHostDiscovery.fromConfig(config);
+  const permissionApi = new PermissionClient({
+    discoveryApi,
+  });
 
   const readonlyEnabled =
     config.getOptionalBoolean('catalog.readonly') || false;
@@ -139,11 +149,33 @@ export async function createRouter(
             'metadata.name': name,
           }),
         });
+
+        const missingError = new NotFoundError(
+          `No entity named '${name}' found, with kind '${kind}' in namespace '${namespace}'`,
+        );
+
         if (!entities.length) {
-          throw new NotFoundError(
-            `No entity named '${name}' found, with kind '${kind}' in namespace '${namespace}'`,
-          );
+          throw missingError;
         }
+
+        const authorizeResponse = await permissionApi.authorize(
+          [
+            {
+              permission: CatalogPermission.ENTITY_READ,
+              context: {
+                entityName: getEntityName(entities[0]),
+              },
+            },
+          ],
+          { token: IdentityClient.getBearerToken(req.header('authorization')) },
+        );
+
+        // TODO(orkohunter): why does this enum work? It's a frontend package. move to common package.
+        if (authorizeResponse[0].result !== AuthorizeResult.ALLOW) {
+          // TBD: Should this be 403 instead?
+          throw missingError;
+        }
+
         res.status(200).json(entities[0]);
       });
   }
