@@ -44,6 +44,7 @@ import kubernetes from './plugins/kubernetes';
 import kafka from './plugins/kafka';
 import rollbar from './plugins/rollbar';
 import scaffolder from './plugins/scaffolder';
+import permission from './plugins/permission';
 import proxy from './plugins/proxy';
 import search from './plugins/search';
 import techdocs from './plugins/techdocs';
@@ -94,6 +95,7 @@ async function main() {
   );
   const scaffolderEnv = useHotMemoize(module, () => createEnv('scaffolder'));
   const authEnv = useHotMemoize(module, () => createEnv('auth'));
+  const permissionEnv = useHotMemoize(module, () => createEnv('permission'));
   const proxyEnv = useHotMemoize(module, () => createEnv('proxy'));
   const rollbarEnv = useHotMemoize(module, () => createEnv('rollbar'));
   const searchEnv = useHotMemoize(module, () => createEnv('search'));
@@ -117,6 +119,7 @@ async function main() {
   apiRouter.use('/todo', await todo(todoEnv));
   apiRouter.use('/kubernetes', await kubernetes(kubernetesEnv));
   apiRouter.use('/kafka', await kafka(kafkaEnv));
+  apiRouter.use('/permission', await permission(permissionEnv));
   apiRouter.use('/proxy', await proxy(proxyEnv));
   apiRouter.use('/graphql', await graphql(graphqlEnv));
   apiRouter.use('/badges', await badges(badgesEnv));
