@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-export * from './client';
-export * from './components';
-export * from './hooks';
-export * from './permissions';
-export * from './api';
+import { useEntity } from '@backstage/plugin-catalog-react';
+import { getEntityName } from '@backstage/catalog-model';
+import { Permission, usePermission } from '@backstage/plugin-permission';
+import { EntityContext } from '../api';
+
+export const useEntityPermission = (permission: Permission) => {
+  // TODO(mtlewis/orkohunter): what happens if there's no entity?
+  const { entity } = useEntity();
+
+  return usePermission<EntityContext>(permission, {
+    entityName: getEntityName(entity),
+  });
+};
