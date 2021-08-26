@@ -19,10 +19,6 @@ import {
   scmIntegrationsApiRef,
 } from '@backstage/integration-react';
 import {
-  permissionApiRef,
-  PermissionApi,
-} from '@backstage/plugin-permission-module-catalog';
-import {
   costInsightsApiRef,
   ExampleCostInsightsClient,
 } from '@backstage/plugin-cost-insights';
@@ -33,21 +29,12 @@ import {
 import {
   AnyApiFactory,
   configApiRef,
-  discoveryApiRef,
-  identityApiRef,
   createApiFactory,
   errorApiRef,
   githubAuthApiRef,
 } from '@backstage/core-plugin-api';
 
 export const apis: AnyApiFactory[] = [
-  createApiFactory({
-    api: permissionApiRef,
-    deps: { discoveryApi: discoveryApiRef, identityApi: identityApiRef },
-    factory: ({ discoveryApi, identityApi }) =>
-      new PermissionApi(discoveryApi, identityApi),
-  }),
-
   createApiFactory({
     api: scmIntegrationsApiRef,
     deps: { configApi: configApiRef },

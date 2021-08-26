@@ -31,6 +31,7 @@ import {
   SamlAuth,
   OneLoginAuth,
   UnhandledErrorForwarder,
+  IdentityPermissionApi,
 } from '../apis';
 
 import {
@@ -51,6 +52,8 @@ import {
   samlAuthApiRef,
   oneloginAuthApiRef,
   oidcAuthApiRef,
+  identityApiRef,
+  permissionApiRef,
 } from '@backstage/core-plugin-api';
 
 import OAuth2Icon from '@material-ui/icons/AcUnit';
@@ -223,5 +226,11 @@ export const defaultApis = [
         },
         environment: configApi.getOptionalString('auth.environment'),
       }),
+  }),
+  createApiFactory({
+    api: permissionApiRef,
+    deps: { discoveryApi: discoveryApiRef, identityApi: identityApiRef },
+    factory: ({ discoveryApi, identityApi }) =>
+      new IdentityPermissionApi(discoveryApi, identityApi),
   }),
 ];
