@@ -95,7 +95,7 @@ export function createRoutableExtension<
 // ComponentType inserts children as an optional prop whether the inner component accepts it or not,
 // making it impossible to make the usage of children type safe.
 export function createComponentExtension<
-  T extends (props: any) => JSX.Element | null
+  T extends (props: any) => JSX.Element | null,
 >(options: { component: ComponentLoader<T>; name?: string }): Extension<T> {
   const { component, name } = options;
   return createReactExtension({ component, name });
