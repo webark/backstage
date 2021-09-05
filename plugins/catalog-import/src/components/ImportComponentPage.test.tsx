@@ -57,8 +57,8 @@ describe('<ImportComponentPage />', () => {
         catalogImportApiRef,
         new CatalogImportClient({
           discoveryApi: {} as any,
-          githubAuthApi: {
-            getAccessToken: async () => 'token',
+          scmAuthApi: {
+            getCredentials: async () => ({ token: 'token', headers: {} }),
           },
           identityApi,
           scmIntegrationsApi: {} as any,
