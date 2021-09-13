@@ -36,11 +36,19 @@ export function createRootLogger(
   options: winston.LoggerOptions = {},
   env = process.env,
 ): winston.Logger {
+  // TODO(Harry/Himanshu): Get the config schema, filter all the configs with @visibility secret, and pass that to winston so that it can mask it in the logs. https://github.com/winstonjs/winston/issues/1079#issuecomment-382861053
+
   const logger = winston.createLogger(
     merge<LoggerOptions, LoggerOptions>(
       {
         level: env.LOG_LEVEL || 'info',
         format: winston.format.combine(
+          winston.format(info => {
+            // TODO(Harry/Himanshu): Iterate over all secrets, and substitute info.message string. Or dynamically create regex from all the secrets and do a one time substitution.
+            // example: info.message = info.message.replace(new RegExp('abc123', 'g'), "**[Redacted: Config integration.github.token]**");
+            // Make sure do it in a case-insensitive way
+            return info;
+          })(),
           env.NODE_ENV === 'production' ? winston.format.json() : coloredFormat,
         ),
         defaultMeta: {
