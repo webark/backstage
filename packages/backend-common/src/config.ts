@@ -20,6 +20,7 @@ import { Logger } from 'winston';
 import { findPaths } from '@backstage/cli-common';
 import { Config, ConfigReader, JsonValue } from '@backstage/config';
 import { loadConfig } from '@backstage/config-loader';
+import { setRootLoggerFilteredKeys } from './logging';
 
 class ObservableConfigProxy implements Config {
   private config: Config = new ConfigReader({});
@@ -154,6 +155,6 @@ export async function loadBackendConfig(options: {
   );
 
   config.setConfig(ConfigReader.fromConfigs(configs));
-
+  setRootLoggerFilteredKeys({ 'secret-1': 'GOATS', 'secret-2': 'SHARKS' });
   return config;
 }

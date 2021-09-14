@@ -15,11 +15,22 @@
  */
 
 import { merge } from 'lodash';
+import { Config } from '@backstage/config';
 import * as winston from 'winston';
 import { LoggerOptions } from 'winston';
 import { coloredFormat } from './formats';
 
+type FilteredKeys = Record<string, string>;
+
 let rootLogger: winston.Logger;
+let filteredKeys: FilteredKeys;
+
+/**
+ {
+    secret-1: 'integrations.github[0].token',
+    secrets-2: 'something'
+ }
+ */
 
 /** @public */
 export function getRootLogger(): winston.Logger {
@@ -29,6 +40,10 @@ export function getRootLogger(): winston.Logger {
 /** @public */
 export function setRootLogger(newLogger: winston.Logger) {
   rootLogger = newLogger;
+}
+
+export function setRootLoggerFilteredKeys(_filteredKeys: FilteredKeys) {
+  filteredKeys = _filteredKeys;
 }
 
 /** @public */
@@ -47,6 +62,9 @@ export function createRootLogger(
             // TODO(Harry/Himanshu): Iterate over all secrets, and substitute info.message string. Or dynamically create regex from all the secrets and do a one time substitution.
             // example: info.message = info.message.replace(new RegExp('abc123', 'g'), "**[Redacted: Config integration.github.token]**");
             // Make sure do it in a case-insensitive way
+            Object.entries(filteredKeys || {}).forEach(([key, value]) => {
+              info.message = info.message.replace(new RegExp(key, 'g'), value);
+            });
             return info;
           })(),
           env.NODE_ENV === 'production' ? winston.format.json() : coloredFormat,
