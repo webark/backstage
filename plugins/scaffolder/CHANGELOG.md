@@ -1,5 +1,17 @@
 # @backstage/plugin-scaffolder
 
+## 0.11.4
+
+### Patch Changes
+
+- 70fdfbf36a: Change the Categories filter to a dropdown component
+- 96fef17a18: Upgrade git-parse-url to v11.6.0
+- Updated dependencies
+  - @backstage/core-components@0.4.2
+  - @backstage/integration@0.6.4
+  - @backstage/core-plugin-api@0.1.8
+  - @backstage/plugin-catalog-react@0.4.6
+
 ## 0.11.3
 
 ### Patch Changes
