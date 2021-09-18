@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Entity, ComponentEntity } from '@backstage/catalog-model';
+import { Entity } from '@backstage/catalog-model';
 
 function strCmp(a: string | undefined, b: string | undefined): boolean {
   return Boolean(a && a?.toLowerCase() === b?.toLowerCase());
@@ -24,14 +24,17 @@ export function isKind(kind: string) {
   return (entity: Entity) => strCmp(entity?.kind, kind);
 }
 
-export function isComponentType(type: string) {
+export function isKindType(kind: string, type: string) {
   return (entity: Entity) => {
-    if (!strCmp(entity?.kind, 'component')) {
+    if (!isKind(kind)(entity)) {
       return false;
     }
-    const componentEntity = entity as ComponentEntity;
-    return strCmp(componentEntity.spec.type, type);
+    return strCmp(entity?.spec?.type as string | undefined, type);
   };
+}
+
+export function isComponentType(type: string) {
+  return isKindType('component', type);
 }
 
 export function isNamespace(namespace: string) {

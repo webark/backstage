@@ -18,7 +18,7 @@ import { Entity } from '@backstage/catalog-model';
 import { EntityProvider } from '@backstage/plugin-catalog-react';
 import { render } from '@testing-library/react';
 import React from 'react';
-import { isKind } from './conditions';
+import { isKind, isKindType, isComponentType } from './conditions';
 import { EntitySwitch } from './EntitySwitch';
 import { featureFlagsApiRef } from '@backstage/core-plugin-api';
 import {
@@ -35,7 +35,7 @@ const Wrapper = ({ children }: { children?: React.ReactNode }) => (
 );
 
 describe('EntitySwitch', () => {
-  it('should switch child when entity switches', () => {
+  it('should switch child when entity switches by kind', () => {
     const content = (
       <EntitySwitch>
         <EntitySwitch.Case if={isKind('component')} children="A" />
@@ -79,6 +79,110 @@ describe('EntitySwitch', () => {
     expect(rendered.queryByText('A')).not.toBeInTheDocument();
     expect(rendered.queryByText('B')).not.toBeInTheDocument();
     expect(rendered.queryByText('C')).toBeInTheDocument();
+  });
+
+  it('should switch child when entity switches by kind and type', () => {
+    const content = (
+      <EntitySwitch>
+        <EntitySwitch.Case if={isComponentType('library')} children="A" />
+        <EntitySwitch.Case if={isComponentType('service')} children="B" />
+        <EntitySwitch.Case if={isKindType('group', 'team')} children="C" />
+        <EntitySwitch.Case if={isKindType('group', 'unit')} children="D" />
+        <EntitySwitch.Case children="E" />
+      </EntitySwitch>
+    );
+
+    const rendered = render(
+      <Wrapper>
+        <EntityProvider
+          entity={
+            {
+              kind: 'component',
+              spec: { type: 'library' },
+            } as unknown as Entity
+          }
+        >
+          {content}
+        </EntityProvider>
+      </Wrapper>,
+    );
+
+    expect(rendered.queryByText('A')).toBeInTheDocument();
+    expect(rendered.queryByText('B')).not.toBeInTheDocument();
+    expect(rendered.queryByText('C')).not.toBeInTheDocument();
+    expect(rendered.queryByText('D')).not.toBeInTheDocument();
+    expect(rendered.queryByText('E')).not.toBeInTheDocument();
+
+    rendered.rerender(
+      <Wrapper>
+        <EntityProvider
+          entity={
+            {
+              kind: 'component',
+              spec: { type: 'service' },
+            } as unknown as Entity
+          }
+        >
+          {content}
+        </EntityProvider>
+      </Wrapper>,
+    );
+
+    expect(rendered.queryByText('A')).not.toBeInTheDocument();
+    expect(rendered.queryByText('B')).toBeInTheDocument();
+    expect(rendered.queryByText('C')).not.toBeInTheDocument();
+    expect(rendered.queryByText('D')).not.toBeInTheDocument();
+    expect(rendered.queryByText('E')).not.toBeInTheDocument();
+
+    rendered.rerender(
+      <Wrapper>
+        <EntityProvider
+          entity={
+            { kind: 'group', spec: { type: 'team' } } as unknown as Entity
+          }
+        >
+          {content}
+        </EntityProvider>
+      </Wrapper>,
+    );
+
+    expect(rendered.queryByText('A')).not.toBeInTheDocument();
+    expect(rendered.queryByText('B')).not.toBeInTheDocument();
+    expect(rendered.queryByText('C')).toBeInTheDocument();
+    expect(rendered.queryByText('D')).not.toBeInTheDocument();
+    expect(rendered.queryByText('E')).not.toBeInTheDocument();
+
+    rendered.rerender(
+      <Wrapper>
+        <EntityProvider
+          entity={
+            { kind: 'group', spec: { type: 'unit' } } as unknown as Entity
+          }
+        >
+          {content}
+        </EntityProvider>
+      </Wrapper>,
+    );
+
+    expect(rendered.queryByText('A')).not.toBeInTheDocument();
+    expect(rendered.queryByText('B')).not.toBeInTheDocument();
+    expect(rendered.queryByText('C')).not.toBeInTheDocument();
+    expect(rendered.queryByText('D')).toBeInTheDocument();
+    expect(rendered.queryByText('E')).not.toBeInTheDocument();
+
+    rendered.rerender(
+      <Wrapper>
+        <EntityProvider entity={{ kind: 'derp' } as Entity}>
+          {content}
+        </EntityProvider>
+      </Wrapper>,
+    );
+
+    expect(rendered.queryByText('A')).not.toBeInTheDocument();
+    expect(rendered.queryByText('B')).not.toBeInTheDocument();
+    expect(rendered.queryByText('C')).not.toBeInTheDocument();
+    expect(rendered.queryByText('D')).not.toBeInTheDocument();
+    expect(rendered.queryByText('E')).toBeInTheDocument();
   });
 
   it('should switch child when filters switch', () => {
